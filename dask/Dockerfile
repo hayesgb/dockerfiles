@@ -5,6 +5,7 @@ RUN conda install --yes \
     python-blosc \
     cytoolz \
     dask \
+    distributed \
     lz4 \
     nomkl \
     numpy \
@@ -12,7 +13,6 @@ RUN conda install --yes \
     matplotlib \
     scipy \
     scikit-learn \
-    pandas \
     pyarrow \
     cloudpickle \
     joblib \
@@ -34,14 +34,15 @@ RUN conda install --yes \
     && find /opt/conda/lib/python*/site-packages/bokeh/server/static -type f,l -name '*.js' -not -name '*.min.js' -delete \
     && rm -rf /opt/conda/pkgs
 
-RUN pip install -U -q mlrun kfp
+RUN pip install --no-cache-dir -U -q mlrun kfp
 
-RUN conda update --all -c intel
+RUN conda update --all -c intel -q -y 
 
-COPY prepare.sh /usr/bin/prepare.sh
+RUN conda update --no-deps -q -y scikit-learn
+
+# min requirement to sync yjbds/mlrun-files and yjbds/mlrun-ds
+RUN pip install --no-cache-dir pyarrow==0.15.1 pandas==0.25.3
 
 RUN mkdir /opt/app
 
 ENTRYPOINT ["/bin/bash"]
-
-#ENTRYPOINT ["tini", "-g", "--", "/usr/bin/prepare.sh"]
