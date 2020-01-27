@@ -36,7 +36,17 @@ RUN conda install --yes \
 
 RUN pip install -U -q mlrun kfp
 
-RUN conda update --all -c intel
+RUN conda update --all -c intel -q -y 
+
+RUN conda update --no-deps -q -y scikit-learn
+
+RUN python -m pip install git+https://github.com/dask/dask-xgboost.git
+
+RUN python -m pip install git+https://github.com/dask/dask-lightgbm.git
+
+RUN python -m pip install git+https://github.com/yzhao062/pyod.git
+
+RUN python -m pip install git+https://github.com/scikit-learn-contrib/imbalanced-learn.git
 
 COPY prepare.sh /usr/bin/prepare.sh
 
