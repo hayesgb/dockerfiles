@@ -20,6 +20,7 @@ RUN conda install --yes -c intel \
     dill \
     lxml \
     h5py \
+    tini==0.18.0 \
     && conda clean -tipsy \
     && find /opt/conda/ -type f,l -name '*.a' -delete \
     && find /opt/conda/ -type f,l -name '*.pyc' -delete \

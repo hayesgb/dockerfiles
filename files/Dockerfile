@@ -6,8 +6,8 @@ ARG pandas_v=0.25.3
 ENV PYARROW=$pyarrow_v
 ENV PANDAS=$pandas_v
 
-
-RUN conda clean -tipsy \
+RUN conda install --yes tini==0.18.0 \
+    && conda clean -tipsy \
     && find /opt/conda/ -type f,l -name '*.a' -delete \
     && find /opt/conda/ -type f,l -name '*.pyc' -delete \
     && find /opt/conda/ -type f,l -name '*.js.map' -delete \
