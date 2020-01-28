@@ -1,10 +1,19 @@
 FROM continuumio/miniconda3:4.7.12
 
+ARG pyarrow_v=0.15.1
+ARG pandas_v=0.25.3
+ARG tensorflow_v=2.1.0
+
+ENV PYARROW=$pyarrow_v
+ENV PANDAS=$pandas_v
+ENV TENSORFLOW=$tensorflow_v
+
 RUN conda install --yes \
     -c intel \
     python-blosc \
     cytoolz \
     dask \
+    distributed \
     lz4 \
     nomkl \
     numpy \
@@ -12,7 +21,6 @@ RUN conda install --yes \
     matplotlib \
     scipy \
     scikit-learn \
-    pandas \
     pyarrow \
     cloudpickle \
     joblib \
@@ -34,24 +42,29 @@ RUN conda install --yes \
     && find /opt/conda/lib/python*/site-packages/bokeh/server/static -type f,l -name '*.js' -not -name '*.min.js' -delete \
     && rm -rf /opt/conda/pkgs
 
-RUN pip install -U -q mlrun kfp
+RUN pip install --no-cache-dir -U -q kfp
+
+RUN python -m pip install --no-cache-dir -q git+https://github.com/mlrun/mlrun.git@development
 
 RUN conda update --all -c intel -q -y 
 
 RUN conda update --no-deps -q -y scikit-learn
 
-RUN python -m pip install git+https://github.com/dask/dask-xgboost.git
+RUN python -m pip install --no-cache-dir -U -q dask-kubernetes
 
-RUN python -m pip install git+https://github.com/dask/dask-lightgbm.git
+RUN python -m pip install --no-cache-dir -q git+https://github.com/dask/dask-xgboost.git
 
-RUN python -m pip install git+https://github.com/yzhao062/pyod.git
+RUN python -m pip install --no-cache-dir -q git+https://github.com/dask/dask-lightgbm.git
 
-RUN python -m pip install git+https://github.com/scikit-learn-contrib/imbalanced-learn.git
+RUN python -m pip install --no-cache-dir -q git+https://github.com/yzhao062/pyod.git
+
+RUN python -m pip install --no-cache-dir -q git+https://github.com/scikit-learn-contrib/imbalanced-learn.git
+
+# min requirement to sync yjbds/mlrun-files and yjbds/mlrun-ds
+RUN pip install --no-cache-dir pyarrow==$PYARROW pandas==$PANDAS
 
 COPY prepare.sh /usr/bin/prepare.sh
 
 RUN mkdir /opt/app
 
-ENTRYPOINT ["/bin/bash"]
-
-#ENTRYPOINT ["tini", "-g", "--", "/usr/bin/prepare.sh"]
+ENTRYPOINT ["tini", "-g", "--", "/usr/bin/prepare.sh"]

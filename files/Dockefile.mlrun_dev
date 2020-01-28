@@ -15,7 +15,7 @@ RUN conda clean -tipsy \
 
 RUN pip install -U -q --no-cache-dir pyarrow==$PYARROW pandas==$PANDAS numpy h5py joblib cloudpickle dill
 
-RUN pip install --no-cache-dir -q git+https://github.com/mlrun/mlrun.git@development
+RUN pip install -U -q --no-cache-dir mlrun kfp kfserving azure
 
 COPY prepare.sh /usr/bin/prepare.sh
 
