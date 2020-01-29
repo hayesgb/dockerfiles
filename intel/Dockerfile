@@ -1,10 +1,10 @@
-FROM yjbds/mlrun_dev-base:latest
+FROM yjbds/mlrun-base:dev
 
 MAINTAINER yashab@iguazio.com
 
 RUN conda config --add channels intel \
  && conda install intelpython3_full python=3 \
- && conda install cloudpickle tini==$TINI
+ && conda install cloudpickle
 
 RUN conda update --all -c intel -q -y
 
@@ -15,9 +15,3 @@ RUN conda clean -tipsy \
     && find /opt/conda/ -type f,l -name '*.pyc' -delete \
     && find /opt/conda/ -type f,l -name '*.js.map' -delete \
     && rm -rf /opt/conda/pkgs
-
-COPY prepare.sh /usr/bin/prepare.sh
-
-RUN mkdir /opt/app
-
-ENTRYPOINT ["tini", "-g", "--", "/usr/bin/prepare.sh"]
