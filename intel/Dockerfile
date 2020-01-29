@@ -3,8 +3,7 @@ FROM yjbds/mlrun-base:dev
 MAINTAINER yashab@iguazio.com
 
 RUN conda config --add channels intel \
- && conda install intelpython3_full python=3 \
- && conda install cloudpickle
+ && conda install intelpython3_full python=3
 
 RUN conda update --all -c intel -q -y
 

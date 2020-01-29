@@ -23,15 +23,16 @@ ENV LZ4=$lz4_v
 ENV URLLIB3=$urllib3_v
 ENV IMBLEARN=$imblearn_v
 
-RUN apt update \
+RUN apt update -qqq \
  && apt -y upgrade \
  && apt -y install build-essential \
  && apt -y install ca-certificates \
- && update-ca-certificates --fresh
+ && update-ca-certificates --fresh \
+ && apt autoremove
 
 ENV SSL_CERT_DIR /etc/ssl/certs
 
-RUN python -m pip install --no-cache-dir -q h5py joblib dill
+RUN python -m pip install --no-cache-dir -q h5py joblib dill cloudpickle
 
 # min requirement to sync yjbds/mlrun-files and yjbds/mlrun-intel, yjbds/mlrun-dask-boost
 RUN python -m pip install --no-cache-dir -q pyarrow==$PYARROW
