@@ -47,5 +47,5 @@ RUN python -m pip install --no-cache-dir -q blosc lz4==$LZ4 msgpack==$MSGPACK
 RUN python -m pip install --no-cache-dir -q kfp
 RUN python -m pip install --no-cache-dir -q git+https://github.com/mlrun/mlrun.git@development
 
-ENTRYPOINT ["/bin/bash"]
+#ENTRYPOINT ["/bin/bash"]
 
