@@ -1,6 +1,4 @@
 #!/bin/bash
-echo "I am root" && id
-
 set -x
 
 # We start by adding extra apt packages, since pip modules may required library

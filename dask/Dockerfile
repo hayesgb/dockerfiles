@@ -3,10 +3,12 @@ FROM continuumio/miniconda3:4.7.12
 ARG pyarrow_v=0.15.1
 ARG pandas_v=0.25.3
 ARG tensorflow_v=2.1.0
+ARG sklearn_v=0.22.1
 
 ENV PYARROW=$pyarrow_v
 ENV PANDAS=$pandas_v
 ENV TENSORFLOW=$tensorflow_v
+ENV SKLEARN=$sklearn_v
 
 RUN conda install --yes \
     -c intel \
@@ -61,7 +63,9 @@ RUN python -m pip install --no-cache-dir -q git+https://github.com/yzhao062/pyod
 RUN python -m pip install --no-cache-dir -q git+https://github.com/scikit-learn-contrib/imbalanced-learn.git
 
 # min requirement to sync yjbds/mlrun-files and yjbds/mlrun-ds
-RUN pip install --no-cache-dir pyarrow==$PYARROW pandas==$PANDAS
+RUN python -m pip install --no-cache-dir pyarrow==$PYARROW pandas==$PANDAS
+
+RUN python -m pip install --no-cache-dir https://github.com/urllib3/urllib3/archive/1.24.3.tar.gz
 
 COPY prepare.sh /usr/bin/prepare.sh
 

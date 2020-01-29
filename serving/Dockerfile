@@ -3,18 +3,18 @@ FROM continuumio/miniconda3:4.7.12
 ARG pyarrow_v=0.15.1
 ARG pandas_v=0.25.3
 ARG numpy_v=1.18.1
+ARG sklearn_v=0.22.1
 
 ENV PYARROW=$pyarrow_v
 ENV PANDAS=$pandas_v
 ENV NUMPY=$numpy_v
+ENV SKLEARN=$sklearn_v
 
-RUN conda install --yes -c intel \
+RUN conda install --yes \
     python-blosc \
     cytoolz \
     lz4 \
-    numpy \
     pillow \
-    scikit-learn \
     cloudpickle \
     joblib \
     dill \
@@ -31,9 +31,7 @@ RUN pip install --no-cache-dir -U -q mlrun kfp
 
 RUN pip install --no-cache-dir -U -q kfserving
 
-RUN pip install --no-cache-dir pyarrow==$PYARROW pandas==$PANDAS
-
-RUN conda update --no-deps -q -y scikit-learn
+RUN pip install --no-cache-dir pyarrow==$PYARROW pandas==$PANDAS scikit-learn==$SKLEARN
 
 COPY prepare.sh /usr/bin/prepare.sh
 
