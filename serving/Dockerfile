@@ -33,6 +33,8 @@ RUN pip install --no-cache-dir -U -q kfserving
 
 RUN pip install --no-cache-dir pyarrow==$PYARROW pandas==$PANDAS scikit-learn==$SKLEARN
 
+RUN python -m pip install --no-cache-dir https://github.com/urllib3/urllib3/archive/1.24.3.tar.gz
+
 COPY prepare.sh /usr/bin/prepare.sh
 
 RUN mkdir /opt/app

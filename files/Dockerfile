@@ -17,6 +17,8 @@ RUN pip install -U -q --no-cache-dir pyarrow==$PYARROW pandas==$PANDAS numpy h5p
 
 RUN pip install --no-cache-dir -q git+https://github.com/mlrun/mlrun.git@development
 
+RUN python -m pip install --no-cache-dir https://github.com/urllib3/urllib3/archive/1.24.3.tar.gz
+
 COPY prepare.sh /usr/bin/prepare.sh
 
 RUN mkdir /opt/app
