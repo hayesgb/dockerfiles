@@ -2,7 +2,9 @@ FROM yjbds/mlrun-base:dev
 
 MAINTAINER yashab@iguazio.com
 
-RUN conda install -n base intelpython3_full python=3 daal4py
+RUN conda install -n base intelpython3_full python=3
+
+RUN conda install -n base daal4py
 
 RUN conda install -n base lightgbm xgboost
 
