@@ -2,10 +2,13 @@ FROM yjbds/mlrun-base:dev
 
 MAINTAINER yashab@iguazio.com
 
-RUN conda config --add channels intel \
- && conda install intelpython3_full python=3
+RUN conda install -n base intelpython3_full python=3 daal4py
 
-RUN conda update --all -c intel -q -y
+RUN conda install -n base lightgbm xgboost
+
+RUN conda update --all -q -y
+
+RUN pip install pandas==0.25.3
 
 ENV USE_DAAL4PY_SKLEARN YES
 
