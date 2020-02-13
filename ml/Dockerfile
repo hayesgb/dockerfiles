@@ -6,8 +6,6 @@ RUN conda install -n base intelpython3_full python=3
 
 RUN conda install -n base daal4py
 
-RUN conda install -n base lightgbm
-
 ARG GPU=0
 ARG MPI=0
 
