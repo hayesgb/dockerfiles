@@ -6,14 +6,11 @@ RUN conda install -n base intelpython3_full python=3
 
 RUN conda install -n base daal4py
 
-RUN conda install -n base lightgbm
-
 ARG GPU=0
 ARG MPI=0
 
 # xgboost
-RUN apt-get update && apt-get -y install cmake && \ 
-    mkdir /repos && \
+RUN mkdir /repos && \
     cd repos && \
     git clone --recursive https://github.com/dmlc/xgboost && \
     cd xgboost && \

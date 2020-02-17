@@ -1,35 +1,47 @@
-FROM continuumio/miniconda3:4.7.12
+FROM python:3.7-alpine3.8
 
-MAINTAINER yashab@iguazio.com
+RUN apk update \
+    && apk upgrade \
+    && apk add --no-cache build-base \
+            cmake \
+            bash \
+            boost-dev \
+            autoconf \
+            zlib-dev \
+            libressl-dev \
+            flex \
+            bison \
+    && pip install six pytest numpy cython pandas 
 
-RUN apt update -qqq \
- && apt -y upgrade \
- && apt install -yq --no-install-recommends build-essential graphviz cmake \
- && apt install -y ca-certificates \
- && update-ca-certificates --fresh \
- && apt clean \
- && apt autoremove \
- && rm -rf /var/lib/apt/lists/*
+ARG ARROW_BUILD_TYPE=release
 
-ENV SSL_CERT_DIR /etc/ssl/certs
+ENV ARROW_HOME=/usr/local \
+    PARQUET_HOME=/usr/local 
 
-RUN conda update conda && \
-    conda config --add channels intel && \
-    conda config --add channels conda-forge && \
-    conda init bash && \
-    conda install -n base intelpython3_core python=3 h5py joblib \
-	dill cloudpickle pyarrow python-blosc lz4 msgpack-python fsspec \
-        tini==0.18.0 cytoolz nomkl python-graphviz
-
-# ml/ai pipelines
-RUN conda install -n base kfp
-
-SHELL ["conda", "run", "-n", "base", "/bin/bash", "-c"]
-
-RUN python -m pip install git+https://github.com/mlrun/mlrun.git@development
-
-COPY prepare.sh /usr/bin/prepare.sh
-
-RUN mkdir /opt/app
-
-ENTRYPOINT ["tini", "-g", "--", "/usr/bin/prepare.sh"]
+RUN mkdir -p /arrow \
+    && apk add --no-cache curl \
+    && curl -o /tmp/apache-arrow.zip -SL https://codeload.github.com/apache/arrow/zip/master \
+    && unzip /tmp/apache-arrow.zip \
+    && mv arrow-master/* /arrow/ \
+    && mkdir -p /arrow/cpp/build \
+    && cd /arrow/cpp/build \
+    && cmake -DCMAKE_BUILD_TYPE=$ARROW_BUILD_TYPE \
+          -DOPENSSL_ROOT_DIR=/usr/local/ssl \
+          -DCMAKE_INSTALL_LIBDIR=lib \
+          -DCMAKE_INSTALL_PREFIX=$ARROW_HOME \
+          -DARROW_WITH_BZ2=ON \
+          -DARROW_WITH_ZLIB=ON \
+          -DARROW_WITH_ZSTD=ON \
+          -DARROW_WITH_LZ4=ON \
+          -DARROW_WITH_SNAPPY=ON \
+          -DARROW_PARQUET=ON \
+          -DARROW_PYTHON=ON \
+          -DARROW_PLASMA=ON \
+          -DARROW_BUILD_TESTS=OFF \
+          .. \
+    && make -j$(nproc) \
+    && make install \
+    && cd /arrow/python \
+    && python setup.py build_ext --build-type=$ARROW_BUILD_TYPE --with-parquet \
+    && python setup.py install \
+    && rm -rf /arrow /tmp/apache-arrow.tar.gz
