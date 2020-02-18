@@ -11,6 +11,9 @@ ENV JULIA_VER=$julia_ver
 ARG march=haswell
 ENV MARCH=$march
 
+ARG my_s3
+ENV MY_S3=$my_s3
+
 ENV CONDA_DIR /opt/conda
 ENV PATH $CONDA_DIR/bin:$PATH
 
@@ -44,6 +47,6 @@ RUN \
 
 RUN tar -czvf julia-v$JULIA_VER.tar.gz /julia/usr 
 
-RUN aws s3 cp julia-v$JULIA_VER.tar.gz s3://fpsignals-public/builds/julia-v$JULIA_VER.tar.gz
+RUN aws s3 cp julia-v$JULIA_VER.tar.gz s3://$MY_S3/julia-v$JULIA_VER.tar.gz
 
 ENTRYPOINT ["tini", "-g", "--", "/bin/bash"]
