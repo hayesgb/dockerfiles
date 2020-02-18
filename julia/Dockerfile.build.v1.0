@@ -1,0 +1,49 @@
+FROM ubuntu:18.04
+
+MAINTAINER Yasha Borstein <yashab@iguazio.com>
+
+ARG python_ver=Miniconda3
+ENV PYTHON_VER=$python_ver
+
+ARG julia_ver=1.0.0
+ENV JULIA_VER=$julia_ver
+
+ARG march=haswell
+ENV MARCH=$march
+
+ENV CONDA_DIR /opt/conda
+ENV PATH $CONDA_DIR/bin:$PATH
+
+WORKDIR /
+
+ADD apt-packages.txt apt-packages.txt
+
+RUN apt-get update && \
+    apt-get -yq upgrade && \
+    xargs -a apt-packages.txt apt-get install -y --no-install-recommends && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    mkdir -p $CONDA_DIR && \
+    wget --quiet https://repo.continuum.io/miniconda/${PYTHON_VER}-latest-Linux-x86_64.sh && \
+    /bin/bash ${PYTHON_VER}-latest-Linux-x86_64.sh -f -b -p $CONDA_DIR && \
+    rm ${PYTHON_VER}-latest-Linux-x86_64.sh
+
+RUN $CONDA_DIR/bin/python3 -m pip install --upgrade pip && \
+    $CONDA_DIR/bin/python3 -m pip install --upgrade awscli && \
+    conda install -c intel mkl-devel && \
+    conda update -c intel --all && \
+    conda install tini==0.18.0
+
+RUN \
+    git clone https://github.com/JuliaLang/julia.git && \
+    cd julia && \
+    git checkout tags/v$JULIA_VER && \
+#    echo "OPENBLAS_TARGET_ARCH=${MARCH}" >> Make.user && \
+    echo "MARCH:=${MARCH}" >> Make.user && \
+    make -j $(nproc)
+
+RUN tar -czvf julia-v$JULIA_VER.tar.gz /julia/usr 
+
+RUN aws s3 cp julia-v$JULIA_VER.tar.gz s3://fpsignals-public/builds/julia-v$JULIA_VER.tar.gz
+
+ENTRYPOINT ["tini", "-g", "--", "/bin/bash"]
