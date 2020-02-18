@@ -1,0 +1,21 @@
+FROM yjbds/mlrun-ml:dev
+
+MAINTAINER yashab@iguazio.com
+
+RUN conda install -y -n base -c conda-forge \
+    dask \
+    distributed \
+    dask-ml \
+    dask-kubernetes \
+    dask-xgboost \
+    fsspec
+
+RUN conda install -n base -y -c bokeh bokeh
+
+# pip gets downgraded in earlier layer
+#RUN wget -q https://bootstrap.pypa.io/get-pip.py \
+#    && python get-pip.py
+
+RUN python -m pip install -U pip
+
+RUN python -m pip install --no-cache-dir dask-lightgbm

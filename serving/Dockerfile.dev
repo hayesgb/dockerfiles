@@ -1,0 +1,9 @@
+FROM yjbds/mlrun-base:dev
+
+RUN python -m pip install --no-cache-dir -U kfserving
+
+RUN python -m pip install --no-cache-dir -U nuclio-sdk==0.0.7
+
+# ENTRYPOINT ["tini", "-g", "--", "python"]
+
+# ENTRYPOINT ["tini", "-g", "--", "/bin/bash"]

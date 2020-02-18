@@ -1,0 +1,39 @@
+FROM continuumio/miniconda3:4.7.12
+
+MAINTAINER yashab@iguazio.com
+
+RUN apt update -qqq \
+ && apt -y upgrade \
+ && apt install -yq --no-install-recommends build-essential graphviz cmake \
+ && apt install -y ca-certificates \
+ && update-ca-certificates --fresh \
+ && apt clean \
+ && apt autoremove \
+ && rm -rf /var/lib/apt/lists/*
+
+ENV SSL_CERT_DIR /etc/ssl/certs
+
+RUN conda update conda && \
+    conda config --add channels intel && \
+    conda config --add channels conda-forge && \
+    conda init bash && \
+    echo 'source activate base' > ~/.bashrc && \ 
+    conda install -n base intelpython3_core python=3 h5py joblib \
+	dill cloudpickle python-blosc lz4 msgpack-python fsspec \
+        tini==0.18.0 cytoolz nomkl python-graphviz 
+
+ENV PATH /opt/conda/envs/base/bin:$PATH
+
+# ml/ai pipelines
+
+RUN conda install -n base kfp
+
+RUN python -m pip install  --ignore-installed git+https://github.com/mlrun/mlrun.git@development
+
+RUN python -m pip uninstall -y pyarrow && python -m pip install pyarrow
+
+COPY prepare.sh /usr/bin/prepare.sh
+
+RUN mkdir /opt/app
+
+ENTRYPOINT ["tini", "-g", "--", "/usr/bin/prepare.sh"]
