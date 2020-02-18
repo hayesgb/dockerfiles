@@ -17,16 +17,21 @@ RUN conda update conda && \
     conda config --add channels intel && \
     conda config --add channels conda-forge && \
     conda init bash && \
+    echo 'source activate base' > ~/.bashrc && \ 
     conda install -n base intelpython3_core python=3 h5py joblib \
 	dill cloudpickle python-blosc lz4 msgpack-python fsspec \
         tini==0.18.0 cytoolz nomkl python-graphviz 
 
+ENV PATH /opt/conda/envs/base/bin:$PATH
+
 # ml/ai pipelines
+
 RUN conda install -n base kfp
 
-SHELL ["conda", "run", "-n", "base", "/bin/bash", "-c"]
+ARG mlrun_tag=v0.4.3
+ENV MLRUN_TAG=$mlrun_tag
 
-RUN python -m pip install git+https://github.com/mlrun/mlrun.git@development
+RUN python -m pip install  --ignore-installed git+https://github.com/mlrun/mlrun.git@$MLRUN_TAG
 
 RUN python -m pip uninstall -y pyarrow && python -m pip install pyarrow
 
